@@ -27,6 +27,8 @@ func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	if len(bz) > 0 {
 		baseFee := new(big.Int).SetBytes(bz)
 		m.keeper.SetBaseFee(ctx, baseFee)
+	} else {
+		m.keeper.SetBaseFee(ctx, big.NewInt(0))
 	}
 	store.Delete(KeyPrefixBaseFeeV1)
 	return nil
