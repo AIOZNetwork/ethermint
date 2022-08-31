@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
 	"math/big"
 
@@ -9,9 +8,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/tharsis/ethermint/types"
-	"github.com/tharsis/ethermint/x/evm/statedb"
-	"github.com/tharsis/ethermint/x/evm/types"
+	ethermint "github.com/evmos/ethermint/types"
+	"github.com/evmos/ethermint/x/evm/statedb"
+	"github.com/evmos/ethermint/x/evm/types"
 )
 
 var _ statedb.Keeper = &Keeper{}
@@ -186,7 +185,7 @@ func (k *Keeper) DeleteAccount(ctx sdk.Context, addr common.Address) error {
 	}
 
 	// NOTE: only Ethereum accounts (contracts) can be selfdestructed
-	ethAcct, ok := acct.(ethermint.EthAccountI)
+	_, ok := acct.(ethermint.EthAccountI)
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrInvalidAccount, "type %T, address %s", acct, addr)
 	}
@@ -194,12 +193,6 @@ func (k *Keeper) DeleteAccount(ctx sdk.Context, addr common.Address) error {
 	// clear balance
 	if err := k.SetBalance(ctx, addr, new(big.Int)); err != nil {
 		return err
-	}
-
-	// remove code
-	codeHashBz := ethAcct.GetCodeHash().Bytes()
-	if !bytes.Equal(codeHashBz, types.EmptyCodeHash) {
-		k.SetCode(ctx, codeHashBz, nil)
 	}
 
 	// clear storage
