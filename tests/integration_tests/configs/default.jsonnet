@@ -8,6 +8,10 @@
         // larger timeout for more stable mempool tests
         timeout_commit: '10s',
       },
+      mempool: {
+        // use v1 mempool to enable tx prioritization
+        version: 'v1',
+      },
     },
     'app-config': {
       'minimum-gas-prices': '0aphoton',

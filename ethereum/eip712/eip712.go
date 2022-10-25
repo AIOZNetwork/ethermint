@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -323,7 +325,6 @@ func traverseFields(
 		}
 
 		if fieldType.Kind() == reflect.Struct {
-
 			var fieldTypedef string
 
 			if isCollection {
@@ -390,9 +391,12 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(sdk.Int{})
+	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
+	cosmDecType   = reflect.TypeOf(sdk.Dec{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
+
+	edType = reflect.TypeOf(ed25519.PubKey{})
 )
 
 // typToEth supports only basic types and arrays of basic types.
@@ -438,6 +442,8 @@ func typToEth(typ reflect.Type) string {
 	case reflect.Ptr:
 		if typ.Elem().ConvertibleTo(bigIntType) ||
 			typ.Elem().ConvertibleTo(timeType) ||
+			typ.Elem().ConvertibleTo(edType) ||
+			typ.Elem().ConvertibleTo(cosmDecType) ||
 			typ.Elem().ConvertibleTo(cosmIntType) {
 			return str
 		}
@@ -445,7 +451,9 @@ func typToEth(typ reflect.Type) string {
 		if typ.ConvertibleTo(hashType) ||
 			typ.ConvertibleTo(addressType) ||
 			typ.ConvertibleTo(bigIntType) ||
+			typ.ConvertibleTo(edType) ||
 			typ.ConvertibleTo(timeType) ||
+			typ.ConvertibleTo(cosmDecType) ||
 			typ.ConvertibleTo(cosmIntType) {
 			return str
 		}
