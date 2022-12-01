@@ -181,7 +181,7 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 
 	baseFee := mfd.evmKeeper.GetBaseFee(ctx, ethCfg)
 	// skip check as the London hard fork and EIP-1559 are enabled
-	if baseFee != nil {
+	if baseFee != nil && baseFee.Sign() > 0 {
 		return next(ctx, tx, simulate)
 	}
 
