@@ -262,8 +262,24 @@ func ShouldIgnoreGasUsed(res *abci.ResponseDeliverTx) bool {
 // GetLogsFromBlockResults returns the list of event logs from the tendermint block result response
 func GetLogsFromBlockResults(blockRes *tmrpctypes.ResultBlockResults) ([][]*ethtypes.Log, error) {
 	blockLogs := [][]*ethtypes.Log{}
+	if len(blockRes.BeginBlockEvents) > 0 {
+		logs, err := AllTxLogsFromEvents(blockRes.BeginBlockEvents)
+		if err != nil {
+			return nil, err
+		}
+
+		blockLogs = append(blockLogs, logs...)
+	}
 	for _, txResult := range blockRes.TxsResults {
 		logs, err := AllTxLogsFromEvents(txResult.Events)
+		if err != nil {
+			return nil, err
+		}
+
+		blockLogs = append(blockLogs, logs...)
+	}
+	if len(blockRes.EndBlockEvents) > 0 {
+		logs, err := AllTxLogsFromEvents(blockRes.EndBlockEvents)
 		if err != nil {
 			return nil, err
 		}
